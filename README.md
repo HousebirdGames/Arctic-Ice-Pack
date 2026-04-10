@@ -1,6 +1,6 @@
-# Arctic Ice Pack
+# Arctic Ice Pack Mod
 
-Adds a large walkable ice pack to the arctic ocean in **Stormworks: Build and Rescue**. Walk, drive vehicles, and land aircraft on top of it. Dive underneath with a submarine. The ice is made of overlapping irregular polygon slabs (pentagons, trapezoids, squares) for a natural low-poly look.
+Adds a large walkable ice pack to the arctic region in **Stormworks: Build and Rescue**. Walk, drive vehicles, and land aircraft on top of it. Dive underneath with a submarine. The ice is made of overlapping irregular polygon slabs (pentagons, trapezoids, squares) for a natural low-poly look.
 
 > **This mod is experimental.** It directly modifies game files and may cause issues in existing saves and new saves alike. Use at your own risk. Always keep a backup.
 
