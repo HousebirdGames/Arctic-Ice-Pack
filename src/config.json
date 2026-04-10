@@ -1,0 +1,22 @@
+{
+    "_comment": "Arctic Ice Pack - Configuration",
+    "ice_height": 8,
+    "shape_mix": {
+        "random_seed": 420,
+        "mesh_size_m": 2800,
+        "slab_depth_m": 28.0,
+        "bevel_inset_m": 0.8
+    },
+    "tile_exclusions": [
+        "arctic_tile_12_oilrig",
+        "arctic_island_playerbase",
+        "arctic_tile_11",
+        "arctic_tile_13",
+        "arctic_tile_21",
+        "arctic_tile_22",
+        "arctic_tile_23",
+        "arctic_tile_31",
+        "arctic_tile_32",
+        "arctic_tile_33"
+    ]
+}
