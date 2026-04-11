@@ -13,7 +13,7 @@ import json
 import math
 import os
 import random
-import shutil
+import re
 
 # ── paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR    = os.path.dirname(os.path.abspath(__file__))
@@ -1190,6 +1190,19 @@ def phys_stamp_xml(stamp_id, phys_file, x, y, z, cos_r, sin_r, jitter_deg, scale
     return f'\t\t<physics_mesh id="{stamp_id}" file_name="meshes/{phys_file}.phys">\n\t\t\t<transform {t}/>\n\t\t</physics_mesh>\n'
 
 # ── world tile patcher ────────────────────────────────────────────────────────
+
+def strip_ice_stamps(content):
+    """Remove all ice stamp elements previously injected by this script."""
+    content = re.sub(
+        r'\t\t<mesh id="flat_ice_vis"[^\n]*>\n\t\t\t<transform[^\n]*/>\n\t\t</mesh>\n',
+        '', content
+    )
+    content = re.sub(
+        r'\t\t<physics_mesh id="flat_ice_phys"[^\n]*>\n\t\t\t<transform[^\n]*/>\n\t\t</physics_mesh>\n',
+        '', content
+    )
+    return content
+
 def tile_rng(fname):
     """Deterministic per-tile RNG seeded from filename + global seed.
     Ensures each tile always gets the same shape/rotation across rebuilds,
@@ -1263,12 +1276,11 @@ def patch_world_tiles():
         orig_path = os.path.join(ORIGINAL_DIR, fname)
         out_path  = os.path.join(OUTPUT_DIR if is_primary else EXTRA_OUTPUT_DIR, fname)
 
-        # Bootstrap: copy from ROM the first time we see this file.
-        if not os.path.exists(orig_path):
-            shutil.copy(rom_path, orig_path)
-
-        with open(orig_path, "r", encoding="utf-8") as fh:
-            content = fh.read()
+        # Always read from ROM and strip any previous stamps → guarantees clean original backup.
+        with open(rom_path, "r", encoding="utf-8") as fh:
+            content = strip_ice_stamps(fh.read())
+        with open(orig_path, "w", encoding="utf-8") as fh:
+            fh.write(content)
 
         # ── Physics stamp ──────────────────────────────────────────────────────
         if "</physics_meshes>" in content:
@@ -1330,9 +1342,12 @@ def generate():
         if not (is_primary or fname == "blank.xml"):
             continue
         orig_path = os.path.join(ORIGINAL_DIR, fname)
-        if not os.path.exists(orig_path):
-            shutil.copy(os.path.join(ROM_TILES_DIR, fname), orig_path)
-        shutil.copy(orig_path, os.path.join(OUTPUT_DIR, fname))
+        with open(os.path.join(ROM_TILES_DIR, fname), "r", encoding="utf-8") as fh:
+            clean = strip_ice_stamps(fh.read())
+        with open(orig_path, "w", encoding="utf-8") as fh:
+            fh.write(clean)
+        with open(os.path.join(OUTPUT_DIR, fname), "w", encoding="utf-8") as fh:
+            fh.write(clean)
 
     # ── World tile patches ────────────────────────────────────────────────────
     # PRIMARY tiles (ice_shelf_*) → tiles/mod/       visual + physics
