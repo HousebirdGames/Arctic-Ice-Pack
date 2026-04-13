@@ -56,10 +56,38 @@ copy /Y "output\arctic_ice_trap.mesh"   "%MOD_DIR%meshes\arctic_ice_trap.mesh"  
 copy /Y "output\arctic_ice_trap.phys"   "%MOD_DIR%meshes\arctic_ice_trap.phys"   >nul
 
 REM Step 4: Generate tile XMLs
-echo [4/4] Generating tile XMLs...
+echo [4/5] Generating tile XMLs...
 cd /d "%MOD_DIR%"
 python src\generate_tiles.py
 if errorlevel 1 ( echo ERROR running generate_tiles.py & pause & exit /b 1 )
+
+REM Step 5: Update standalone mod folder
+echo [5/5] Updating standalone mod...
+
+REM Bump build number in mod.xml
+set MOD_XML=%MOD_DIR%mod\arctic_ice_pack\mod.xml
+python -c "import re; p=r'%MOD_XML%'; t=open(p).read(); m=re.search(r'Build (\d+)', t); n=int(m.group(1))+1 if m else 1; open(p,'w').write(re.sub(r'Build \d+', 'Build '+str(n), t)); print('  Build number ->', n)"
+if errorlevel 1 ( echo ERROR bumping build number & pause & exit /b 1 )
+
+REM Create standalone mod subfolders if needed
+if not exist "%MOD_DIR%mod\arctic_ice_pack\data\tiles\" mkdir "%MOD_DIR%mod\arctic_ice_pack\data\tiles"
+if not exist "%MOD_DIR%mod\arctic_ice_pack\meshes\"     mkdir "%MOD_DIR%mod\arctic_ice_pack\meshes"
+
+REM Copy tiles to standalone mod
+xcopy /Y /Q "%MOD_DIR%tiles\mod\*.xml" "%MOD_DIR%mod\arctic_ice_pack\data\tiles\" >nul
+if errorlevel 1 ( echo ERROR copying tiles to standalone mod & pause & exit /b 1 )
+echo   Tiles copied.
+
+REM Copy meshes to standalone mod
+copy /Y "%MOD_DIR%meshes\arctic_ice_flat.mesh"   "%MOD_DIR%mod\arctic_ice_pack\meshes\arctic_ice_flat.mesh"   >nul
+copy /Y "%MOD_DIR%meshes\arctic_ice_flat.phys"   "%MOD_DIR%mod\arctic_ice_pack\meshes\arctic_ice_flat.phys"   >nul
+copy /Y "%MOD_DIR%meshes\arctic_ice_penta.mesh"  "%MOD_DIR%mod\arctic_ice_pack\meshes\arctic_ice_penta.mesh"  >nul
+copy /Y "%MOD_DIR%meshes\arctic_ice_penta.phys"  "%MOD_DIR%mod\arctic_ice_pack\meshes\arctic_ice_penta.phys"  >nul
+copy /Y "%MOD_DIR%meshes\arctic_ice_penta2.mesh" "%MOD_DIR%mod\arctic_ice_pack\meshes\arctic_ice_penta2.mesh" >nul
+copy /Y "%MOD_DIR%meshes\arctic_ice_penta2.phys" "%MOD_DIR%mod\arctic_ice_pack\meshes\arctic_ice_penta2.phys" >nul
+copy /Y "%MOD_DIR%meshes\arctic_ice_trap.mesh"   "%MOD_DIR%mod\arctic_ice_pack\meshes\arctic_ice_trap.mesh"   >nul
+copy /Y "%MOD_DIR%meshes\arctic_ice_trap.phys"   "%MOD_DIR%mod\arctic_ice_pack\meshes\arctic_ice_trap.phys"   >nul
+echo   Meshes copied.
 
 echo.
 echo Build complete. Run enable.bat to apply the mod.
